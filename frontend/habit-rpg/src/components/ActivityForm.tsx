@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import type { ActivityFormProps, ActivityEntry } from '../../types';
 
+const url = import.meta.env.VITE_API_URL;
+
 const emptyActivityEntry = {
   category: '',
   activity: '',
@@ -16,7 +18,13 @@ export default function ActivityForm({setIsOpen}: ActivityFormProps){
 
     function handleSubmit(e: React.SubmitEvent<HTMLFormElement>): void{
         e.preventDefault();
-        console.log(activityEntry);
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            body: JSON.stringify(activityEntry)
+        })
     }
 
     return(
@@ -29,22 +37,22 @@ export default function ActivityForm({setIsOpen}: ActivityFormProps){
                     <div>
                         <form onSubmit={handleSubmit} className="">
                             <div className="flex flex-col p-4">
-                                <label htmlFor="" className="pb-2">
+                                <label htmlFor="category" className="pb-2">
                                     Category                                    
                                 </label>
-                                <input type="text" name='category' value={activityEntry.category} className="border rounded border-white" onChange={handleActivityChange}/>
+                                <input type="text" name='category' id='category' value={activityEntry.category} className="border rounded border-white" onChange={handleActivityChange}/>
                             </div>
                             <div className="flex flex-col p-4">
-                                <label htmlFor="" className="pb-2">
+                                <label htmlFor="activity" className="pb-2">
                                     Activity
                                 </label>
-                                <input type="text" name='activity' value={activityEntry.activity}  className="border rounded border-white" onChange={handleActivityChange}/>
+                                <input type="text" name='activity' id='activity' value={activityEntry.activity}  className="border rounded border-white" onChange={handleActivityChange}/>
                             </div>
                             <div className="flex flex-col p-4">
-                                <label htmlFor="" className="pb-2">
+                                <label htmlFor="notes" className="pb-2">
                                     Notes
                                 </label>
-                                <textarea name='note' value={activityEntry.note} className="border rounded border-white" onChange={handleActivityChange}/>
+                                <textarea name='note' id='notes' value={activityEntry.note} className="border rounded border-white" onChange={handleActivityChange}/>
                             </div>
                             <div className="flex items-center justify-end">
                                 <input type="submit" value="Submit" className="p-4 m-4 border-purple-600 border-2 rounded-lg cursor-pointer hover:bg-purple-950"/>
