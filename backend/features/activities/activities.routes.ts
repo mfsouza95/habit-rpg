@@ -1,9 +1,8 @@
 import express from 'express';
+import createActivity from './activities.controller';
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
-    res.json({data: req.body})
-})
+router.post('/', createActivity)
 
 export default router;
