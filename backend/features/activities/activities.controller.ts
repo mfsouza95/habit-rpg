@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ActivityEntrySchema } from './activities.schema';
+import calculateActivity from './activities.service';
 
 export default function createActivity(req: Request, res: Response): void{
     const result = ActivityEntrySchema.safeParse(req.body)
@@ -8,5 +9,6 @@ export default function createActivity(req: Request, res: Response): void{
         res.status(400).json({error: 'Invalid request body'});
         return;
     }
-    res.json({ data: result.data })
+    res.json(calculateActivity(result.data));
+    return;
 }
