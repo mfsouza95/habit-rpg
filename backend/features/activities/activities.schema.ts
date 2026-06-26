@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const ActivityEntrySchema = z.object({
-    category: z.string(),
-    activity: z.string(),
+    category: z.string().min(1),
+    activity: z.string().min(1),
     note: z.string().optional()
 })
 
