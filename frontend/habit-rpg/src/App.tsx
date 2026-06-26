@@ -2,19 +2,19 @@ import { useState } from 'react';
 import './App.css';
 import ActivityForm from './components/ActivityForm';
 
-async function getData() {
-  const url = "http://localhost:3000/health"
-  try{
-    const response = await fetch(url);
-    if (!response.ok){
-      throw new Error(`Response status: ${response.status}`);
-    }
-    const result = await response.json();
-    alert(result.ok); 
-  } catch (error: any) {
-    console.error(error.message); 
-  }
-}
+// async function getData() {
+//   const url = "http://localhost:3000/health"
+//   try{
+//     const response = await fetch(url);
+//     if (!response.ok){
+//       throw new Error(`Response status: ${response.status}`);
+//     }
+//     const result = await response.json();
+//     alert(result.ok); 
+//   } catch (error: any) {
+//     console.error(error.message); 
+//   }
+// }
 
 function App() {
   const [isOpen, setIsOpen] = useState(false);

@@ -16,15 +16,22 @@ export default function ActivityForm({setIsOpen}: ActivityFormProps){
         setActivityEntry({...activityEntry, [e.target.name]: e.target.value})
     }    
 
-    function handleSubmit(e: React.SubmitEvent<HTMLFormElement>): void{
+    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>): Promise<void>{
         e.preventDefault();
-        fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'text/plain'
-            },
-            body: JSON.stringify(activityEntry)
-        })
+        try {
+            const response = await fetch(`${url}/activities`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(activityEntry)
+            });
+            if(!response.ok) throw new Error('error')
+            const data = await response.json();
+            console.log(data);
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     return(
