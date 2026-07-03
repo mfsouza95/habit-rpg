@@ -1,6 +1,7 @@
+import { saveActivity } from "./activities.repository";
 import { ActivityEntry } from "./activities.schema";
 
-export default function calculateActivity(data: ActivityEntry): ActivityEntry & {xpEarned: number} {
+export async function calculateActivity(data: ActivityEntry){
     let xpEarned = 100;
 
     if (data.note && data.note.length > 0){
@@ -9,5 +10,6 @@ export default function calculateActivity(data: ActivityEntry): ActivityEntry & 
             xpEarned += 1000;
         }
     }
-    return {...data, xpEarned};
+
+    return await saveActivity({...data, xpEarned})
 }
