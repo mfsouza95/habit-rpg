@@ -60,7 +60,7 @@ habit-rpg/
 │   ├── generated/
 │   │   └── prisma/           # Prisma generated client (gitignored)
 │   │       └── client.ts     # Entry point for PrismaClient import
-│   ├── index.ts              # Express app entry point
+│   ├── index.ts              # Express app entry point — import 'dotenv/config' MUST be first line
 │   ├── tsconfig.json
 │   ├── prisma.config.ts      # Prisma CLI config (reads DATABASE_URL from .env via dotenv)
 │   ├── .env                  # DATABASE_URL (gitignored)
@@ -96,6 +96,7 @@ Files are prefixed with feature name: `activities.controller.ts`, not `controlle
 - Database name: `habit-rpg` (hyphen, not underscore — intentional choice)
 - Connection via `DATABASE_URL` in `.env`
 - Prisma client imported from `../generated/prisma/client` (custom output path in schema.prisma)
+- `dotenv/config` must be imported at the very top of `index.ts` or DATABASE_URL won't be found at runtime
 
 ### Current Models
 
@@ -128,21 +129,18 @@ model ActivityLog {
 
 ### Backend
 - ✅ Express running via `tsx watch index.ts`
+- ✅ `import 'dotenv/config'` at top of `index.ts` — required for DATABASE_URL at runtime
 - ✅ `GET /health` returns `{ ok: true }`
-- ✅ `POST /activities` route wired to controller
+- ✅ `POST /activities` — full stack working end to end
 - ✅ `express.json()` middleware for body parsing
 - ✅ `cors()` middleware
 - ✅ Zod schema validates `category` (required, min 1, trim), `activity` (required, min 1, trim), `note` (optional, trim)
-- ✅ Controller validates with `safeParse`, returns 400 on failure, logs error server-side
-- ✅ Service calculates XP: base 100, +50 if note filled, +1000 if note === "Neymar JR" (easter egg)
-- ✅ Service calls repository and returns saved result
-- ✅ Repository saves to `ActivityLog` table using `prisma.activityLog.create()`
+- ✅ Controller: async, validates with `safeParse`, returns 400 on validation failure, try/catch around service call, returns 500 on server error
+- ✅ Service: calculates XP, calls repository, returns saved result
+- ✅ Repository: saves to `ActivityLog` table using `prisma.activityLog.create()`
 - ✅ Prisma singleton in `shared/prisma.ts`
 - ✅ Migration `init` applied — `ActivityLog` table exists in DB
-
-### Currently In Progress
-- ⚠️ Controller needs to `await` the now-async `calculateActivity` service call
-- ⚠️ Controller needs try/catch around the service/repository call for database error handling
+- ✅ Rows confirmed inserted in pgAdmin
 
 ---
 
@@ -177,16 +175,15 @@ model ActivityLog {
 - **`safeParse` over `parse`** — controlled error handling, never leak internal errors to client
 - **`note` is optional** — in both Zod schema (`z.string().optional()`) and Prisma model (`String?`)
 - **`squad_members` as join table from day one** — avoids painful migration later
+- **Named exports on controller** — not default export, so import requires `{}`: `import { createActivity }`
 
 ---
 
 ## Immediate Next Steps
 
-1. Update controller to `await calculateActivity()` and wrap in try/catch
-2. Test full flow: form submit → validation → XP calc → save to DB → response
-3. Verify in pgAdmin that rows are being inserted into `ActivityLog`
-4. Build `GET /activities` endpoint to read all entries
-5. Display entries on frontend after each submit (running list)
+1. Build `GET /activities` endpoint — new route, controller, service, repository method
+2. Display returned entries on the frontend as a running list after each submit
+3. After list is working — plan User entity and auth flow
 
 ---
 
