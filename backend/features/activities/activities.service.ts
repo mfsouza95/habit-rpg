@@ -1,4 +1,4 @@
-import { saveActivity } from "./activities.repository";
+import { saveActivity, findActivities } from "./activities.repository";
 import { ActivityEntry } from "./activities.schema";
 
 export async function calculateActivity(data: ActivityEntry){
@@ -12,4 +12,8 @@ export async function calculateActivity(data: ActivityEntry){
     }
 
     return await saveActivity({...data, xpEarned})
+}
+
+export async function getActivities(){
+    return await findActivities();
 }

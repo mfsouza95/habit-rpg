@@ -12,3 +12,11 @@ export async function saveActivity(data: ActivityEntry & {xpEarned: number}){
     });
     return result;
 }
+
+export async function findActivities(){
+    return prisma.activityLog.findMany({
+        orderBy: {
+            timestamp: 'desc'
+        }
+    });
+}

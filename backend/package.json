@@ -7,7 +7,8 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "dev": "tsx watch index.ts"
   },
   "dependencies": {
@@ -21,6 +22,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "prisma": "^6.19.3",
-    "tsx": "^4.22.4"
+    "tsx": "^4.22.4",
+    "vitest": "^4.1.10"
   }
 }

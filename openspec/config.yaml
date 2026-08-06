@@ -1,0 +1,120 @@
+schema: spec-driven
+
+# Project context
+# Shown to AI when creating artifacts.
+context: |
+  # Habit RPG
+
+  A social habit-tracking web app where users log real-world activities, earn XP,
+  level up, and connect with friends/squads. Built as a long-term learning project
+  to become a fullstack developer.
+
+  ## Philosophy
+  - Build the smallest thing that proves the feature works
+  - Avoid premature abstractions, premature optimization, over-engineering
+  - Feature-driven, incremental development
+  - Commit at done-condition milestones using conventional commits
+
+  ## Tech Stack
+  ### Frontend
+  - React + TypeScript + Vite + Tailwind CSS
+  - State: component-level useState (no global state yet)
+  ### Backend
+  - Node.js + Express + TypeScript
+  - Runtime: tsx (with tsx watch for dev)
+  - Validation: Zod
+  - ORM: Prisma 6 (important: NOT v7)
+  - Database: PostgreSQL (local, pgAdmin for GUI)
+  ### Not yet implemented
+  - Auth (planned: JWT inside HttpOnly cookies)
+  - Redis (planned for caching/leaderboards later)
+  - Docker (planned for deployment, not Phase 1)
+
+  ## Repository Structure
+  - `frontend/` - Vite + React app (src/App.tsx, src/components/, src/types.ts, .env with VITE_API_URL=http://localhost:3000)
+  - `backend/` - Express app
+    - `features/<feature>/` - feature folders with routes, controller, service, repository, schema files
+    - `shared/prisma.ts` - Prisma singleton (imports from ../generated/prisma/client)
+    - `prisma/schema.prisma` + `prisma/migrations/`
+    - `generated/prisma/` - Prisma generated client (gitignored)
+    - `index.ts` - Express entry point; `import 'dotenv/config'` MUST be first line
+    - `prisma.config.ts` - Prisma CLI config (reads DATABASE_URL from .env via dotenv)
+  - `.env` files are gitignored; `.env.example` files are committed
+
+  ## Architecture
+  ### Request Flow
+  Route -> Schema (Zod) -> Controller -> Service -> Repository -> Database
+  ### Layer Responsibilities
+  - Routes - map HTTP method + URL to controller handler only
+  - Schema - Zod validation of request body at entry point
+  - Controller - receive request, call service, send response. Knows HTTP. No business logic.
+  - Service - business logic only. No HTTP. No req/res.
+  - Repository - database access only. No business logic. No HTTP.
+  ### Naming Convention
+  Files are prefixed with feature name: `activities.controller.ts`, not `controller.ts`
+
+  ## Database
+  - PostgreSQL running locally
+  - Database name: `habit-rpg` (hyphen, not underscore - intentional choice)
+  - Connection via `DATABASE_URL` in `.env`
+  - Prisma client imported from `../generated/prisma/client` (custom output path in schema.prisma)
+  - `dotenv/config` must be imported at the very top of `index.ts` or DATABASE_URL won't be found at runtime
+  - Current model: ActivityLog (id, category, activity, note?, xpEarned, timestamp)
+
+  ## XP System
+  - Stored: totalXp on User (not yet implemented)
+  - Calculated: level derived from XP formula (not yet implemented)
+  - Current: XP calculated per activity log entry in service layer
+  - Formula: base 100 + 50 if note filled + 1000 if note === "Neymar JR"
+  - Reason for formula approach: easy to rebalance without migrations
+
+  ## Entity Model (Planned)
+  - User - id, username, email, passwordHash, totalXp
+  - Category - examples: Learning, Fitness, Reading
+  - Activity - belongs to Category, has XP reward
+  - ActivityLog - userId, activityId, timestamp, xpEarned, optionalNote
+  - Squad - group of users for social features
+  - squad_members - join table (built as join table from the start)
+
+  ## Key Decisions & Rationale
+  - Express over NestJS - deliberate choice to learn manual wiring before framework abstractions
+  - Prisma 6 over Prisma 7 - v7 too new, less community documentation, breaking config changes
+  - Prisma over TypeORM/Sequelize - cleanest TypeScript integration, best migration workflow
+  - Import from `../generated/prisma/client`, NOT `@prisma/client` (custom output path)
+  - No `globalThis` singleton pattern - not needed for Express (tsx watch restarts whole process)
+  - `safeParse` over `parse` - controlled error handling, never leak internal errors to client
+  - `note` is optional - in both Zod schema (`z.string().optional()`) and Prisma model (`String?`)
+  - `squad_members` as join table from day one - avoids painful migration later
+  - Named exports on controller - not default export, so import requires `{}`
+
+# Per-artifact rules (optional)
+rules:
+  proposal:
+    - Scope each proposal to the smallest thing that proves the feature works
+    - Include a "Non-goals" section so scope creep is visible
+    - Reference existing capability specs in openspec/specs/ when extending them
+  specs:
+    - Requirements use "The system SHALL..." declarative form
+    - Scenarios use WHEN/THEN structure
+    - Specs describe behavior, not implementation details
+  design:
+    - Follow the documented layer responsibilities (Route -> Schema -> Controller -> Service -> Repository)
+    - Prefer the professional, standard approach; avoid over-engineering
+  tasks:
+    - Break work into small, incremental, feature-driven steps
+    - Each done-condition milestone gets a conventional commit
+    - Follow the established naming convention for new feature files
+
+# Per-operation guidance (optional)
+operations:
+  apply:
+    guidance:
+      - Implement tasks in the documented request-flow order (Route -> Schema -> Controller -> Service -> Repository)
+      - Keep code minimal and focused on the task at hand
+      - Run the existing dev workflow (tsx watch for backend, Vite for frontend) to verify
+      - Commit at done-condition milestones using conventional commits
+      - Respect Prisma 6 (not v7) and the custom generated client import path
+  archive:
+    guidance:
+      - Summarize the archive outcome before finishing
+      - Confirm delta specs synced to main specs in openspec/specs/
